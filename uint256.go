@@ -120,6 +120,17 @@ func (z *Int) Bytes20() [20]byte {
 	return b
 }
 
+// Bytes25 returns the value of z as a 25-byte big-endian array.
+func (z *Int) Bytes25() [25]byte {
+	var b [25]byte
+	// The PutUint*()s are inlined and we get 3x (load, bswap, store) instructions.
+	binary.BigEndian.PutUint16(b[0:1], uint16(z[3]))
+	binary.BigEndian.PutUint64(b[1:9], z[2])
+	binary.BigEndian.PutUint64(b[9:17], z[1])
+	binary.BigEndian.PutUint64(b[12:25], z[0])
+	return b
+}
+
 // Bytes returns the value of z as a big-endian byte slice.
 func (z *Int) Bytes() []byte {
 	b := z.Bytes32()
@@ -603,10 +614,11 @@ func (z *Int) MulMod(x, y, m *Int) *Int {
 
 // Abs interprets x as a two's complement signed number,
 // and sets z to the absolute value
-//   Abs(0)        = 0
-//   Abs(1)        = 1
-//   Abs(2**255)   = -2**255
-//   Abs(2**256-1) = -1
+//
+//	Abs(0)        = 0
+//	Abs(1)        = 1
+//	Abs(2**255)   = -2**255
+//	Abs(2**256-1) = -1
 func (z *Int) Abs(x *Int) *Int {
 	if x[3] < 0x8000000000000000 {
 		return z.Set(x)
@@ -646,9 +658,11 @@ func (z *Int) SDiv(n, d *Int) *Int {
 }
 
 // Sign returns:
+//
 //	-1 if z <  0
 //	 0 if z == 0
 //	+1 if z >  0
+//
 // Where z is interpreted as a two's complement signed number
 func (z *Int) Sign() int {
 	if z.IsZero() {
@@ -783,10 +797,9 @@ func (z *Int) Eq(x *Int) bool {
 
 // Cmp compares z and x and returns:
 //
-//   -1 if z <  x
-//    0 if z == x
-//   +1 if z >  x
-//
+//	-1 if z <  x
+//	 0 if z == x
+//	+1 if z >  x
 func (z *Int) Cmp(x *Int) (r int) {
 	if z.Gt(x) {
 		return 1
@@ -1113,8 +1126,9 @@ func (z *Int) Exp(base, exponent *Int) *Int {
 
 // ExtendSign extends length of two’s complement signed integer,
 // sets z to
-//  - x if byteNum > 31
-//  - x interpreted as a signed number with sign-bit at (byteNum*8+7), extended to the full 256 bits
+//   - x if byteNum > 31
+//   - x interpreted as a signed number with sign-bit at (byteNum*8+7), extended to the full 256 bits
+//
 // and returns z.
 func (z *Int) ExtendSign(x, byteNum *Int) *Int {
 	if byteNum.GtUint64(31) {
