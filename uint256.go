@@ -124,10 +124,10 @@ func (z *Int) Bytes20() [20]byte {
 func (z *Int) Bytes25() [25]byte {
 	var b [25]byte
 	// The PutUint*()s are inlined and we get 3x (load, bswap, store) instructions.
-	binary.BigEndian.PutUint16(b[0:1], uint16(z[3]))
+	b[0] = byte(z[3]) // 取 z[3] 的最低 8 位
 	binary.BigEndian.PutUint64(b[1:9], z[2])
 	binary.BigEndian.PutUint64(b[9:17], z[1])
-	binary.BigEndian.PutUint64(b[12:25], z[0])
+	binary.BigEndian.PutUint64(b[17:25], z[0])
 	return b
 }
 
