@@ -161,6 +161,13 @@ func (z *Int) WriteToArray32(dest *[32]byte) {
 	}
 }
 
+// WriteToArray20 writes the last 25 bytes of z to the destination array, including zero-bytes
+func (z *Int) WriteToArray25(dest *[25]byte) {
+	for i := 0; i < 25; i++ {
+		dest[24-i] = byte(z[i/8] >> uint64(8*(i%8)))
+	}
+}
+
 // WriteToArray20 writes the last 20 bytes of z to the destination array, including zero-bytes
 func (z *Int) WriteToArray20(dest *[20]byte) {
 	for i := 0; i < 20; i++ {
